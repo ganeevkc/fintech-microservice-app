@@ -1,6 +1,5 @@
 package com.finverse.profile;
 
-import com.finverse.profile.domain.model.User;
 import com.finverse.profile.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -8,8 +7,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import java.time.LocalDate;
 
 @SpringBootApplication
 @EnableSwagger2

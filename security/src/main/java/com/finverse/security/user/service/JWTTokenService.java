@@ -6,6 +6,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import java.nio.charset.StandardCharsets;
 
 import java.security.Key;
 import java.time.LocalDateTime;
@@ -33,7 +34,7 @@ public class JWTTokenService implements TokenService, Clock {
         this.issuer = issuer;
         this.expirationInSec = expirationInSec;
         this.clockSkewSec = clockSkewSec;
-        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)); // Ensure your secret is Base64 encoded
+        this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
@@ -81,7 +82,7 @@ public class JWTTokenService implements TokenService, Clock {
                 .builder()
                 .setClaims(claims)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
-                .compressWith(CompressionCodecs.GZIP) // ✅ Use public CompressionCodecs
+//                .compressWith(CompressionCodecs.GZIP) // ✅ Use public CompressionCodecs
                 .compact();
     }
 

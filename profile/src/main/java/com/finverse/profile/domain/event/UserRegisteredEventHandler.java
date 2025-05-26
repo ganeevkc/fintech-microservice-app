@@ -1,6 +1,6 @@
 package com.finverse.profile.domain.event;
 
-import com.finverse.profile.domain.model.User;
+import com.finverse.profile.domain.model.UserProfile;
 import com.google.gson.Gson;
 import com.finverse.profile.domain.repository.UserRepository;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class UserRegisteredEventHandler {
     }
 
     public void handleUserRegistration(String userDetails){
-        User user = GSON.fromJson(userDetails, User.class);
+        UserProfile user = GSON.fromJson(userDetails, UserProfile.class);
         logger.info("user {} registered.", user.getUsername());
         userRepository.save(user);
     }
