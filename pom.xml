@@ -9,7 +9,7 @@
         <version>2.5.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.wolverinesolution</groupId>
+    <groupId>com.finverse</groupId>
     <artifactId>fintech-app</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>fintech-app</name>
@@ -19,10 +19,10 @@
     </properties>
 
     <modules>
-        <module>lendingengine</module>
+        <module>lendingEngine</module>
         <module>profile</module>
-        <module>athenticationService</module>
-        <module>secutiry</module>
+        <module>authenticationService</module>
+        <module>security</module>
     </modules>
 
     <dependencies>
@@ -45,6 +45,11 @@
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>3.0.0</version>
         </dependency>
 
         <dependency>

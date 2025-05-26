@@ -1,0 +1,58 @@
+package com.finverse.securityapp;
+
+import com.finverse.securityapp.user.model.User;
+import com.finverse.securityapp.user.repository.UserRepository;
+import org.jasypt.util.text.StrongTextEncryptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+@SpringBootApplication
+//@ComponentScan(basePackages = {
+//		"com.finverse.securityapp", // your local package
+//		"com.finverse.security"     // shared module with JWTTokenService
+//})
+@Import({com.finverse.security.user.service.JWTTokenService.class})
+
+@EnableSwagger2
+public class AuthenticationServiceApplication implements CommandLineRunner{
+//	@Autowired
+//	private UserRepository userRepository;
+//	private final static String PASSWORD_SALT ="wolverine";
+//	private final static String PASSWORD ="12345";
+
+	public static void main(String[] args) {
+		SpringApplication.run(AuthenticationServiceApplication.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		PasswordEncoder encoder = new BCryptPasswordEncoder();
+
+		String rawPassword = "ganeevisthebest";
+		String hashedPassword = encoder.encode(rawPassword);
+
+		System.out.println("Raw password: " + rawPassword);
+		System.out.println("Hashed password: " + hashedPassword);
+
+		boolean match = encoder.matches(rawPassword, hashedPassword);
+		System.out.println("Match? " + match);
+	}
+
+//	@Override
+//	public void run(String... args) throws Exception {
+//		StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
+//		textEncryptor.setPassword(PASSWORD_SALT);
+//		String encryptedPassword = textEncryptor.encrypt(PASSWORD);
+//
+////		userRepository.save(new User("John", encryptedPassword));
+////		userRepository.save(new User("Mindaugas", encryptedPassword));
+//	}
+
+}
