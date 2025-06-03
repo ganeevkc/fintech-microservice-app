@@ -1,4 +1,4 @@
-package com.finverse.securityapp;
+package com.finverse.auth;
 
 
 class AuthenticationServiceApplicationTests {

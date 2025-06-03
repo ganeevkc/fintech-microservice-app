@@ -1,4 +1,4 @@
-package com.finverse.securityapp.user.model;
+package com.finverse.auth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,7 +21,6 @@ import java.util.UUID;
 //@RequiredArgsConstructor
 public class User {
     private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(
@@ -31,23 +30,27 @@ public class User {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "CHAR(36)")
     @Type(type = "uuid-char") // Stores UUID as readable string in database
     private UUID id;
+
     @Column(name = "username", nullable = false, unique = true)
     private String username;
+
     @Column(name = "password", nullable = false)
     private String password;
-    @Getter
+
     @Column(name = "role")
-    private String role;
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
-    public String getPassword() {return password;}
+    private String role = "USER";
+
+//    public User(String username, String password) {
+//        this.username = username;
+//        this.password = password;
+//    }
+//    public String getPassword() {return password;}
 //    public void setPassword(String plainPassword) {
 //        this.password = encoder.encode(plainPassword);
 //    }
     public boolean matchesPassword(String plainPassword) {
         return encoder.matches(plainPassword, this.password);
     }
+
 
 }

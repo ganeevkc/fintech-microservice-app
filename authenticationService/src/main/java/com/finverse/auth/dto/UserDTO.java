@@ -1,8 +1,7 @@
-package com.finverse.securityapp.user.dto;
+package com.finverse.auth.dto;
 
 import lombok.Data;
 
-//import javax.persistence.Entity;
 
 @Data
 public class UserDTO {

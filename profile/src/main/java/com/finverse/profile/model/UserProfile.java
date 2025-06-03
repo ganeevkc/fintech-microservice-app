@@ -1,4 +1,4 @@
-package com.finverse.profile.domain.model;
+package com.finverse.profile.model;
 
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "user_profile")
+@Table(name = "user_profiles")
 public class UserProfile {
     @Id
     @GeneratedValue(generator = "UUID")
@@ -19,23 +19,40 @@ public class UserProfile {
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "CHAR(36)")
+    @Column(columnDefinition = "CHAR(36)", updatable = false, nullable = false)
     @Type(type = "uuid-char") // Stores UUID as readable string in database
+    @Convert(converter = UuidConverter.class)
     private UUID id;
+
+    @Column(name = "user_id", nullable = false, unique = true, columnDefinition = "CHAR(36)")
+//    @Convert(converter = UuidConverter.class)
+    private UUID userId;
+
     @Column(name = "username", nullable = false, unique = true)
     private String username;
-    @Column(name = "first-name",nullable = false)
+
+    @Column(name = "first_name")
     private String firstname;
-    @Column(name = "last-name",nullable = false)
+
+    @Column(name = "last_name")
     private String lastname;
-    @Column(name = "age",nullable = false)
-    private int age;
-    @Column(name = "occupation",nullable = false)
+
+    @Column(name = "age")
+    private Integer age;
+
+    @Column(name = "occupation")
     private String occupation;
-    @Column(name = "registered-since",nullable = false)
+
+    @Column(name = "registered_since")
     private LocalDate registeredSince;
+
     public UserProfile() {}
 
+    public UserProfile(UUID userId, String username) {
+        this.userId = userId;
+        this.username = username;
+        this.registeredSince = LocalDate.now();
+    }
     public UserProfile(String username, String firstName, String lastName, int age, String occupation) {
         this.username = username;
         this.firstname = firstName;
@@ -45,6 +62,25 @@ public class UserProfile {
         this.registeredSince = LocalDate.now();
     }
 
+    @PrePersist
+    protected void onCreate() {
+        if (this.registeredSince == null) {
+            this.registeredSince = LocalDate.now();
+        }
+    }
+
+    @Converter(autoApply = true)
+    public static class UuidConverter implements AttributeConverter<UUID, String> {
+        @Override
+        public String convertToDatabaseColumn(UUID uuid) {
+            return uuid != null ? uuid.toString() : null;
+        }
+
+        @Override
+        public UUID convertToEntityAttribute(String dbData) {
+            return dbData != null ? UUID.fromString(dbData) : null;
+        }
+    }
 
 //    public void setRegisteredSince(LocalDate registeredSince) {
 //        this.registeredSince = registeredSince;

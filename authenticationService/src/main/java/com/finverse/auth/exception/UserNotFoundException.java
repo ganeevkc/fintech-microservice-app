@@ -1,4 +1,4 @@
-package com.finverse.securityapp.user.exception;
+package com.finverse.auth.exception;
 
 public class UserNotFoundException extends RuntimeException{
 

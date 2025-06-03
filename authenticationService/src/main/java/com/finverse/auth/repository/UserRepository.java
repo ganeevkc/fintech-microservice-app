@@ -1,6 +1,6 @@
-package com.finverse.securityapp.user.repository;
+package com.finverse.auth.repository;
 
-import com.finverse.securityapp.user.model.User;
+import com.finverse.auth.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
