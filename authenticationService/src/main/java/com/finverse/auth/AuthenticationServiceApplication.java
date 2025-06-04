@@ -4,15 +4,15 @@ import com.finverse.auth.service.JWTTokenService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
-
 @Import({JWTTokenService.class})
-
+@EnableDiscoveryClient
 @EnableSwagger2
 public class AuthenticationServiceApplication implements CommandLineRunner{
 //	@Autowired

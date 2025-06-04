@@ -1,7 +1,7 @@
 package com.finverse.lendingengine;
 
-import com.finverse.lendingengine.application.model.LoanApplicationDTO;
-import com.finverse.lendingengine.application.model.LoanRequest;
+import com.finverse.lendingengine.model.LoanApplicationDTO;
+import com.finverse.lendingengine.model.LoanRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Assertions;
