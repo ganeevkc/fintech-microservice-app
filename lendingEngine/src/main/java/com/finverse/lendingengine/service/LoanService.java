@@ -1,6 +1,6 @@
 package com.finverse.lendingengine.service;
 
-import com.finverse.lendingengine.domain.model.*;
+import com.finverse.lendingengine.model.*;
 import com.finverse.lendingengine.repository.LoanApplicationRepository;
 import com.finverse.lendingengine.repository.Loanrepository;
 import com.finverse.lendingengine.exception.LoanApplicationNotFound;
