@@ -15,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.stream.IntStream;
 
 @SpringBootApplication
-@EnableSwagger2
+//@EnableSwagger2
 @EnableDiscoveryClient
 public class LendingengineApplication implements CommandLineRunner {
     @Autowired
@@ -28,21 +28,21 @@ public class LendingengineApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        userRepository.save(new User("Mindaugas", "Mindaugas", "Khandelwal", 25, "Software Developer", new Balance()));
-        userRepository.save(new User("John", "John", "Agrawal", 26, "Software Developer", new Balance()));
+//        userRepository.save(new User("Mindaugas", "Mindaugas", "Khandelwal", 25, "Software Developer", new Balance()));
+//        userRepository.save(new User("John", "John", "Agrawal", 26, "Software Developer", new Balance()));
 
     }
 
-    @Bean
-    CommandLineRunner runner(UserRepository userRepository) { // Fake User Generator
-        Faker faker = new Faker();
-        return args -> IntStream.range(0, 10).forEach(i -> userRepository.save(new User(
-                faker.name().username(),
-                faker.name().firstName(),
-                faker.name().lastName(),
-                faker.number().numberBetween(20, 50),
-                faker.job().position(),
-                new Balance()
-        )));
-    }
+//    @Bean
+//    CommandLineRunner runner(UserRepository userRepository) { // Fake User Generator
+//        Faker faker = new Faker();
+//        return args -> IntStream.range(0, 10).forEach(i -> userRepository.save(new User(
+//                faker.name().username(),
+//                faker.name().firstName(),
+//                faker.name().lastName(),
+//                faker.number().numberBetween(20, 50),
+//                faker.job().position(),
+//                new Balance()
+//        )));
+//    }
 }

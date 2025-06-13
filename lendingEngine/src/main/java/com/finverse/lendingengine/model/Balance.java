@@ -1,18 +1,24 @@
 package com.finverse.lendingengine.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Balance {
 
     @Id
     @GeneratedValue
-    private long id;
+    private UUID id;
+    private double amount;
 
 //    @ElementCollection
     @MapKeyClass(Currency.class)

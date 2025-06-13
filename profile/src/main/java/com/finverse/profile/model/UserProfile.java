@@ -46,6 +46,10 @@ public class UserProfile {
     @Column(name = "registered_since")
     private LocalDate registeredSince;
 
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     public UserProfile() {}
 
     public UserProfile(UUID userId, String username) {
@@ -53,13 +57,14 @@ public class UserProfile {
         this.username = username;
         this.registeredSince = LocalDate.now();
     }
-    public UserProfile(String username, String firstName, String lastName, int age, String occupation) {
+    public UserProfile(String username, String firstName, String lastName, int age, String occupation, Role role) {
         this.username = username;
         this.firstname = firstName;
         this.lastname = lastName;
         this.age = age;
         this.occupation = occupation;
         this.registeredSince = LocalDate.now();
+        this.role = role;
     }
 
     @PrePersist

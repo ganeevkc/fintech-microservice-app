@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.util.UUID;
 
 @Component
 public class BalanceService {
@@ -32,7 +33,7 @@ public class BalanceService {
     }
 
     private User findUser(String authToken) {
-        return userRepository.findById(authToken)
+        return userRepository.findById(UUID.fromString(authToken))
                 .orElseThrow(() -> new UserNotFoundException(authToken));
     }
 

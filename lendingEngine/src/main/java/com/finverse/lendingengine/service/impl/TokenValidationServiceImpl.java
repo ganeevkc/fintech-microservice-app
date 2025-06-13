@@ -1,9 +1,9 @@
 package com.finverse.lendingengine.service.impl;
 
+import com.finverse.lendingengine.repository.UserRepository;
 import com.finverse.lendingengine.service.TokenValidationService;
 import com.finverse.lendingengine.exception.UserNotFoundException;
 import com.finverse.lendingengine.model.User;
-import com.finverse.lendingengine.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -42,10 +42,10 @@ public class TokenValidationServiceImpl implements TokenValidationService {
         }catch (RuntimeException runtimeException){
             throw new RuntimeException("Invalid Token");
         }
-        if(response.getStatusCode().equals(HttpStatus.OK)){
-            return userRepository.findById(response.getBody())
-                    .orElseThrow(()->new UserNotFoundException(response.getBody()));
-        }
+//        if(response.getStatusCode().equals(HttpStatus.OK)){
+//            return userRepository.findByUsername(response.getBody());
+////                    .orElseThrow(()->new UserNotFoundException(response.getBody()));
+//        }
         throw new RuntimeException("Invalid Token");
 
     }

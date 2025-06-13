@@ -1,5 +1,6 @@
 package com.finverse.profile.dto;
 
+import com.finverse.profile.model.Role;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -14,8 +15,9 @@ public class ProfileResponse {
     Integer age;
     String occupation;
     LocalDate registeredSince;
+    Role role;
 
-    public ProfileResponse(UUID userId, String username, String firstname, String lastname, int age, String occupation, LocalDate registeredSince) {
+    public ProfileResponse(UUID userId, String username, String firstname, String lastname, int age, String occupation, LocalDate registeredSince, Role role) {
         this.userId = userId;
         this.username = username;
         this.firstName = firstname;
@@ -23,5 +25,6 @@ public class ProfileResponse {
         this.age = age;
         this.occupation = occupation;
         this.registeredSince = registeredSince;
+        this.role = role;
     }
 }

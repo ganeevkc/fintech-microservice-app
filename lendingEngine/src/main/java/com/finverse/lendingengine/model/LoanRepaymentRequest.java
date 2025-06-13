@@ -3,14 +3,15 @@ package com.finverse.lendingengine.model;
 import lombok.Data;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Data
 public final class LoanRepaymentRequest {
 
     private final double amount;
-    private final long loanId;
+    private final UUID loanId;
 
-    public LoanRepaymentRequest(double amount, long loanId) {
+    public LoanRepaymentRequest(double amount, UUID loanId) {
         this.amount = amount;
         this.loanId = loanId;
     }

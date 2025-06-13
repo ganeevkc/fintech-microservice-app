@@ -6,11 +6,11 @@ import java.util.Objects;
 
 @Data
 public class LoanRequest {
-    private int amount;
+    private Money amount;
     private int daysToRepay;
     private double interestRate;
 
-    public LoanRequest(int amount, int daysToRepay, double interestRate) {
+    public LoanRequest(Money amount, int daysToRepay, double interestRate) {
         this.amount = amount;
         this.daysToRepay = daysToRepay;
         this.interestRate = interestRate;

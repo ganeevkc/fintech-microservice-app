@@ -2,7 +2,6 @@ package com.finverse.lendingengine.service;
 
 import com.finverse.lendingengine.exception.UserNotFoundException;
 import com.finverse.lendingengine.model.User;
-import com.finverse.lendingengine.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;

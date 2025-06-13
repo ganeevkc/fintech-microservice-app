@@ -1,6 +1,7 @@
 package com.finverse.profile.controller;
 
 import com.finverse.profile.dto.ProfileDTO;
+import com.finverse.profile.dto.ProfileResponse;
 import com.finverse.profile.dto.ProfileUpdateRequest;
 import com.finverse.profile.model.UserProfile;
 import com.finverse.profile.repository.ProfileRepository;
@@ -28,6 +29,16 @@ public class ProfileController {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.profileService = profileService;
+    }
+
+    @GetMapping("/me")
+    public String getProfile(
+            @RequestHeader("X-User-ID") UUID userId) {
+
+        ProfileResponse profile = profileService.getProfile(userId);
+//        userRepository.findByUserId(userId);
+        // Use userId to fetch profile details from DB
+        return "Profile data for ${userId}: " + profile;
     }
 
     @PatchMapping("/{userId}")

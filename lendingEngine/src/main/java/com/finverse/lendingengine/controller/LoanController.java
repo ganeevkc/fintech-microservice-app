@@ -1,13 +1,8 @@
 package com.finverse.lendingengine.controller;
 
-import com.finverse.lendingengine.model.LoanRepaymentRequest;
-import com.finverse.lendingengine.model.LoanRequest;
-import com.finverse.lendingengine.service.TokenValidationService;
+import com.finverse.lendingengine.model.*;
 import com.finverse.lendingengine.repository.LoanApplicationRepository;
-import com.finverse.lendingengine.model.Loan;
-import com.finverse.lendingengine.model.LoanApplication;
-import com.finverse.lendingengine.model.Status;
-import com.finverse.lendingengine.model.User;
+import com.finverse.lendingengine.service.TokenValidationService;
 import com.finverse.lendingengine.service.LoanApplicationAdapter;
 import com.finverse.lendingengine.service.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/loan")
@@ -27,7 +23,7 @@ public class LoanController {
     private final TokenValidationService tokenValidationService;
 
     @Autowired
-    public LoanController(LoanApplicationRepository loanApplicationRepository,LoanApplicationAdapter loanApplicationAdapter, LoanService loanService, TokenValidationService tokenValidationService) {
+    public LoanController(LoanApplicationRepository loanApplicationRepository, LoanApplicationAdapter loanApplicationAdapter, LoanService loanService, TokenValidationService tokenValidationService) {
         this.loanApplicationRepository = loanApplicationRepository;
         this.loanApplicationAdapter = loanApplicationAdapter;
         this.loanService = loanService;
@@ -43,7 +39,7 @@ public class LoanController {
     @GetMapping("/requests")
     public List<LoanApplication> getAllLoanRequests(HttpServletRequest request){
         tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-        return loanApplicationRepository.findAllByStatusEquals(Status.ONGOING);
+        return loanApplicationRepository.findAllByStatusEquals(Status.ACTIVE);
     }
 
     @GetMapping("/{status}/borrowed")
@@ -64,11 +60,11 @@ public class LoanController {
         loanService.repayLoan(loanRepaymentRequest.getAmount(),loanRepaymentRequest.getLoanId(),borrower);
     }
 
-    @PostMapping("/accept/{loanApplicationId}")
-    public void acceptLoan(@PathVariable final String loanApplicationId,HttpServletRequest request){
-        User username =tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-        loanService.acceptLoan(Long.parseLong(loanApplicationId),username.getUsername());
-    }
+//    @PostMapping("/accept/{loanApplicationId}")
+//    public void acceptLoan(@PathVariable final String loanApplicationId,HttpServletRequest request){
+//        User user =tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+//        loanService.acceptLoan(Long.parseLong(loanApplicationId),user.getUsername());
+//    }
 
     @GetMapping
     public List<Loan> getAllLoans(HttpServletRequest request){
@@ -79,7 +75,7 @@ public class LoanController {
     @GetMapping("/id/{loanId}")
     public Loan getLoanById(@PathVariable final String loanId,HttpServletRequest request){
         tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-        return loanService.getLoanById(Long.parseLong(loanId));
+        return loanService.getLoanById(UUID.fromString(loanId));
     }
 
 }

@@ -40,6 +40,14 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
+    @GetMapping("/userinfo")
+    public String getUserInfo(
+            @RequestHeader("X-User-ID") String userId,
+            @RequestHeader("X-User-Roles") String roles) {
+
+        return "Authenticated user: " + userId + ", roles: " + roles;
+    }
+
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request){
         if (authenticationService.register(request)) {

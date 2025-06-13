@@ -19,11 +19,11 @@ public final class Money {
     @GeneratedValue //value of id will be auto-generated when a new record is inserted
     private long id;
     private Currency currency;
-    private BigDecimal amount;
+    private Double amount;
 
     public Money(Currency currency, double amount) {
         this.currency = currency;
-        this.amount = BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_DOWN);
+        this.amount = amount;
     }
 
     public Money() {}
@@ -32,14 +32,14 @@ public final class Money {
         if(currency!= money.getCurrency()){
             throw new IllegalArgumentException();
         }
-        return new Money(currency,amount.doubleValue()+money.getAmount());
+        return new Money(currency, amount +money.getAmount());
     }
 
     public Money minus(final Money money){
-        if(currency!= money.getCurrency() || amount.doubleValue() < money.getAmount()){
+        if(currency!= money.getCurrency() || amount < money.getAmount()){
             throw new IllegalArgumentException();
         }
-        return new Money(currency,amount.doubleValue() - money.getAmount());
+        return new Money(currency,amount - money.getAmount());
     }
 
 //    public Currency getCurrency() {return currency; }

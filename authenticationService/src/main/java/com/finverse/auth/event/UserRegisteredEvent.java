@@ -10,10 +10,12 @@ import java.util.UUID;
 public class UserRegisteredEvent implements Serializable {
     private UUID userId;
     private String username;
+    private String role;
     private Instant timestamp;
-    public UserRegisteredEvent(UUID userId, String username, Instant timestamp) {
+    public UserRegisteredEvent(UUID userId, String username, String role, Instant timestamp) {
         this.userId = userId;
         this.username = username;
+        this.role = role;
         this.timestamp = timestamp;
     }
 

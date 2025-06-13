@@ -1,5 +1,6 @@
 package com.finverse.profile.dto;
 
+import com.finverse.profile.model.Role;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -13,5 +14,6 @@ public class ProfileDTO {
     private int age;
     private String occupation;
     private LocalDate registeredSince;
-    public ProfileDTO() {}
+    private Role role;
+
 }

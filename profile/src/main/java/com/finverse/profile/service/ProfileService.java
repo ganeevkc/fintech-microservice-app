@@ -1,8 +1,10 @@
 package com.finverse.profile.service;
 
+import com.finverse.profile.dto.ProfileResponse;
 import com.finverse.profile.dto.ProfileUpdateRequest;
 import com.finverse.profile.exception.ProfileAlreadyExistsException;
 import com.finverse.profile.exception.ProfileNotFoundException;
+import com.finverse.profile.model.Role;
 import com.finverse.profile.model.UserProfile;
 import com.finverse.profile.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -22,33 +25,14 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final AuthServiceClient authServiceClient;
 
-//    @Transactional
-//    public void createProfile(ProfileDTO dto) {
-//        // Verify user exists in auth service
-//        if (!authServiceClient.userExists(dto.getUsername())) {
-//            throw new IllegalArgumentException("User does not exist in auth system");
-//        }
-//        UserProfile profile = new UserProfile(
-//                dto.getUsername(),
-//                dto.getFirst_name(),
-//                dto.getLast_name(),
-//                dto.getAge(),
-//                dto.getOccupation()
-//        );
-//        profileRepository.save(profile);
-//    }
-    public UserProfile createBasicProfile(UUID userId, String username) {
+    public UserProfile createBasicProfile(UUID userId, String username, Role role) {
         try {
-//            if (profileRepository.existsByUserId(userId)) {
-//                throw new ProfileAlreadyExistsException("Profile already exists");
-//            }
             validateUuid(userId);
-
             UserProfile profile = new UserProfile();
             profile.setUserId(userId);
             profile.setUsername(username);
+            profile.setRole(role);
             profile.setRegisteredSince(LocalDate.now());
-
             profileRepository.save(profile);
             log.info("Created profile for user: {}", username);
             return profile;
@@ -65,8 +49,10 @@ public class ProfileService {
 
     @Transactional
     public void updateProfile(UUID userId, ProfileUpdateRequest request) {
-        UserProfile profile = (UserProfile) profileRepository.findByUserId(userId)
-                .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user ID: " + userId));
+        if (!profileRepository.existsByUserId(userId)) {
+            throw new ProfileNotFoundException("Profile not found for user ID: " + userId);
+        }
+        UserProfile profile = (UserProfile) profileRepository.findByUserId(userId);
 
         if (request.getFirstName() != null) {
             profile.setFirstname(request.getFirstName());
@@ -83,9 +69,10 @@ public class ProfileService {
         profileRepository.save(profile);
     }
 //    public ProfileResponse getProfile(UUID userId) {
+//
 //        return profileRepository.findByUserId(userId)
 //                .map(this::mapToProfileResponse)
-//                .orElseThrow(() -> new ProfileNotFoundException(userId));
+//                .orElseThrow(() -> new ProfileNotFoundException("Profile not found with this user id."));
 //    }
 //    private ProfileResponse mapToProfileResponse(UserProfile profile) {
 //        return new ProfileResponse(
@@ -98,4 +85,17 @@ public class ProfileService {
 //                profile.getRegisteredSince()
 //        );
 //    }
+    public ProfileResponse getProfile(UUID userId) {
+        UserProfile profile = profileRepository.findByUserId(userId);
+        return new ProfileResponse(
+                profile.getUserId(),
+                profile.getUsername(),
+                profile.getFirstname(),
+                profile.getLastname(),
+                profile.getAge(),
+                profile.getOccupation(),
+                profile.getRegisteredSince(),
+                profile.getRole()
+        );
+    }
 }

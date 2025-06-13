@@ -12,7 +12,8 @@ public final class LoanApplication {
     @Id
     @GeneratedValue
     private Long id;
-    private int amount;
+
+    private Money LoanAmount;
     @ManyToOne
     private User borrower;
     private int repaymentTerm;
@@ -21,17 +22,17 @@ public final class LoanApplication {
 
     public LoanApplication() {}
 
-    public LoanApplication(int amount, User borrower, int repaymentTerm, double interestRate) {
-        this.amount = amount;
+    public LoanApplication(Money amount, User borrower, int repaymentTerm, double interestRate) {
+        this.LoanAmount = amount;
         this.borrower = borrower;
         this.repaymentTerm = repaymentTerm;
         this.interestRate = interestRate;
-        this.status=Status.ONGOING;
+        this.status=Status.ACTIVE;
     }
 
     public Loan acceptLoanApplication(final User lender){
-        lender.withdraw(getAmount());
-        borrower.topUp(getAmount());
+        lender.withdraw(getLoanAmount());
+        borrower.topUp(getLoanAmount());
         status = Status.COMPLETED;
         return new Loan(lender, this);
     }
@@ -40,9 +41,9 @@ public final class LoanApplication {
 //        return id;
 //    }
 //
-    public Money getAmount() {
-        return new Money(Currency.USD,amount);
-    }
+//    public Money getAmount() {
+//        return new Money(Currency.USD,amount);
+//    }
 //
 //    public void setAmount(int amount) {
 //        this.amount = amount;
@@ -77,19 +78,19 @@ public final class LoanApplication {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LoanApplication that = (LoanApplication) o;
-        return amount == that.amount && Double.compare(that.interestRate, interestRate) == 0 && Objects.equals(id, that.id) && Objects.equals(borrower, that.borrower) && Objects.equals(repaymentTerm, that.repaymentTerm);
+        return LoanAmount == that.LoanAmount && Double.compare(that.interestRate, interestRate) == 0 && Objects.equals(id, that.id) && Objects.equals(borrower, that.borrower) && Objects.equals(repaymentTerm, that.repaymentTerm);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, amount, borrower, repaymentTerm, interestRate);
+        return Objects.hash(id, LoanAmount, borrower, repaymentTerm, interestRate);
     }
 
     @Override
     public String toString() {
         return "LoanApplication{" +
                 "id=" + id +
-                ", amount=" + amount +
+                ", amount=" + LoanAmount +
                 ", borrower=" + borrower +
                 ", repaymentTerm=" + repaymentTerm +
                 ", interestRate=" + interestRate +

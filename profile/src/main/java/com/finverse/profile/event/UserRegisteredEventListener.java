@@ -1,5 +1,6 @@
 package com.finverse.profile.event;
 
+import com.finverse.profile.model.Role;
 import com.finverse.profile.model.UserProfile;
 import com.finverse.profile.repository.ProfileRepository;
 import com.finverse.profile.service.ProfileService;
@@ -23,7 +24,7 @@ import java.util.UUID;
 public class UserRegisteredEventListener {
 //    private final ProfileRepository profileRepository;
     private final ProfileService profileService;
-    private final RabbitTemplate rabbitTemplate;
+//    private final RabbitTemplate rabbitTemplate;
 //    private final ConnectionFactory connectionFactory;
 
     @RabbitListener(queues = "${app.events.queue}")
@@ -31,11 +32,12 @@ public class UserRegisteredEventListener {
         try {
 
             // 1. Validate event structure
-//            validateEvent(event);
+            validateEvent(event);
 
             // 2. Extract and validate fields
             UUID userId = extractUserId(event);
             String username = extractUsername(event);
+            Role role = extractRole(event);
 
             log.info("Processing USER_REGISTERED event for user: {}", username);
 
@@ -46,7 +48,7 @@ public class UserRegisteredEventListener {
 //            }
 
             // 4. Create and save profile
-            UserProfile profile = profileService.createBasicProfile(userId, username);
+            UserProfile profile = profileService.createBasicProfile(userId, username, role);
 
             log.info("Successfully created profile for user: {}", username);
 
@@ -62,7 +64,7 @@ public class UserRegisteredEventListener {
             throw new IllegalArgumentException("Invalid event type");
         }
 
-        if (event.get("userId") == null || event.get("username") == null) {
+        if (event.get("userId") == null || event.get("username") == null || event.get("role") == null) {
             throw new IllegalArgumentException("Missing required fields");
         }
     }
@@ -81,6 +83,13 @@ public class UserRegisteredEventListener {
             throw new IllegalArgumentException("Username cannot be empty");
         }
         return username;
+    }
+    private Role extractRole(Map<String, Object> event) {
+        Role role = (Role) event.get("role");
+        if (role == null) {
+            throw new IllegalArgumentException("Username cannot be empty");
+        }
+        return role;
     }
 //
 //    private UserProfile createProfile(UUID userId, String username) {

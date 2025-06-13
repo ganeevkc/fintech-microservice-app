@@ -1,9 +1,14 @@
 package com.finverse.auth.dto;
 
+import com.finverse.auth.model.Role;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDTO {
 
     private String username;
@@ -12,34 +17,6 @@ public class UserDTO {
     private String last_name;
     private int age;
     private String occupation;
+    private Role role;
 
-    public UserDTO() {}
-
-//    public String getUsername() {
-//        return username;
-//    }
-//
-//    public String getPassword() {
-//        return password;
-//    }
-//
-//    public String getFirst_name() {
-//        return first_name;
-//    }
-//
-//    public String getLast_name() {
-//        return last_name;
-//    }
-//
-//    public int getAge() {
-//        return age;
-//    }
-//
-//    public String getOccupation() {
-//        return occupation;
-//    }
-//
-//    public void setPassword(String password) {
-//        this.password = password;
-//    }
 }

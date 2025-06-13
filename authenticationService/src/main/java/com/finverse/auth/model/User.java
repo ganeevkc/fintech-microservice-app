@@ -8,10 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity //jpa entity
@@ -37,8 +34,8 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "role")
-    private String role = "USER";
+    @Enumerated(EnumType.STRING)
+    private Role role; //lender, borrower, admin
 
 //    public User(String username, String password) {
 //        this.username = username;

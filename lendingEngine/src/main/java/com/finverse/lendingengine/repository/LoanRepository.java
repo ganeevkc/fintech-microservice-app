@@ -7,11 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface Loanrepository extends JpaRepository<Loan, Long> {
+public interface LoanRepository extends JpaRepository<Loan, UUID> {
 
+    List<Loan> findByUserID(UUID userId);
     List<Loan> findByBorrowerAndStatus(User borrower, Status status);
-    List<Loan> findByLenderAndStatus(User lender,Status status);
-    Optional<Loan> findOneByIdAndBorrower(Long id,User borrower);
+    List<Loan> findByLenderAndStatus(User lender, Status status);
+    Optional<Loan> findOneByIdAndBorrower(UUID id, User borrower);
 
 }

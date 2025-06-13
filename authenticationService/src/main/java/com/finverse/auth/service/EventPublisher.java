@@ -1,6 +1,7 @@
 package com.finverse.auth.service;
 
 import com.finverse.auth.event.UserRegisteredEvent;
+import com.finverse.auth.model.Role;
 import com.finverse.auth.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.TopicExchange;
@@ -30,16 +31,16 @@ public class EventPublisher {
     }
 
 
-    public void publishUserRegisteredEvent(UUID userId, String username) {
+    public void publishUserRegisteredEvent(UUID userId, String username, Role role) {
         log.info("Publishing event for user: {}", username);
         Map<String, Object> event = Map.of(
                 "eventType", "USER_REGISTERED",
                 "userId", userId.toString(),
                 "username", username,
+                "role", role,
                 "timestamp", Instant.now()
         );
         rabbitTemplate.convertAndSend(
-//                userEventsExchange.getName(),
                 exchangeName,
                 routingKey,
                 event,

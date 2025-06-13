@@ -45,11 +45,12 @@ public class AuthService {
             User user = new User();
             user.setUsername(request.getUsername());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setRole(request.getRole());
             User savedUser = userRepository.save(user);
-//        this.notificationService.sendMessage(userDTO);
             eventPublisher.publishUserRegisteredEvent(
                     savedUser.getId(),
-                    savedUser.getUsername()
+                    savedUser.getUsername(),
+                    savedUser.getRole()
             );
             return true;
         } catch (Exception e) {
@@ -65,8 +66,8 @@ public class AuthService {
             throw new BadCredentialsException("Invalid credentials");
         }
         Map<String, String> claims = new HashMap<>();
-        claims.put("username", ((User) user).getUsername());
-        claims.put("role", user.getRole());
+        claims.put("username", user.getUsername());
+        claims.put("role", String.valueOf(user.getRole()));
 
         String token = jwtTokenService.expiring(claims);
         return new TokenResponse(token);

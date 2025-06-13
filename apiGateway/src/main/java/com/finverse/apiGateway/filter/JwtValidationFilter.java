@@ -41,7 +41,7 @@ public class JwtValidationFilter extends AbstractGatewayFilterFactory {
                 // Add user info to headers
                 ServerHttpRequest request = exchange.getRequest().mutate()
                         .header("X-User-ID", claims.getSubject())
-                        .header("X-User-Roles", String.valueOf(claims.get("roles")))
+                        .header("X-User-Role", String.valueOf(claims.get("role")))
                         .build();
 
                 return chain.filter(exchange.mutate().request(request).build());

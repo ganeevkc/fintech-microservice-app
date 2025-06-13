@@ -15,7 +15,7 @@
     <description>Profile microservice for Fintech App</description>
     <properties>
         <java.version>11</java.version>
-        <jackson.version>2.15.0</jackson.version>
+        <jackson.version>2.15.2</jackson.version>
     </properties>
 
     <dependencies>
@@ -31,7 +31,7 @@
         <!-- Jackson Core -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <artifactId>jackson-core</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <!-- Jackson Databind -->

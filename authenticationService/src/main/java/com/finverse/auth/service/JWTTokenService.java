@@ -66,7 +66,7 @@ public class JWTTokenService implements TokenService, Clock {
 
     private String newToken(final Map<String, String> attributes, final int expirationInSec) {
         final LocalDateTime currentTime = LocalDateTime.now();
-        final Claims claims = Jwts
+        final Claims claims = (Claims) Jwts
                 .claims()
                 .setIssuer(issuer)
                 .setIssuedAt(Date.from(currentTime.toInstant(ZoneOffset.UTC)));
