@@ -29,10 +29,12 @@ public class LoanService {
     }
 
     @Transactional
-    public void acceptLoan(final long loanApplicationId, final String username){
-        User lender = findUser(username);
-        LoanApplication loanApplication = findLoanApplication(loanApplicationId);
-        loanrepository.save(loanApplication.acceptLoanApplication(lender));
+    public void acceptLoan(final long loanApplicationId, final UUID userId){
+        Optional<User> lender = userRepository.findById(userId);
+        if (lender.isPresent()) {
+            LoanApplication loanApplication = findLoanApplication(loanApplicationId);
+            loanrepository.save(loanApplication.acceptLoanApplication(lender.get()));
+        }
     }
 
     @Transactional
@@ -66,9 +68,9 @@ public class LoanService {
         }
     }
 
-    private User findUser(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
-    }
+//    private User findUser(String username) {
+//        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+//    }
 
     private LoanApplication findLoanApplication(long loanApplicationId) {
         return loanApplicationRepository.findById(loanApplicationId).

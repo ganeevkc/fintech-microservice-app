@@ -18,20 +18,22 @@ public class Loan {
 
     @ManyToOne
     private User borrower;
+
     @ManyToOne
     private User lender;
+
     @OneToOne(cascade = CascadeType.ALL)
     private Money loanAmount;
 
     private double interestRate;
     private LocalDate dateLent;
     private LocalDate dateDue;
+
     @OneToOne(cascade = CascadeType.ALL)
     private Money amountPaid;
 
     @Enumerated(EnumType.STRING)
     private Status status;
-
 
     public Loan() {}
 
@@ -47,10 +49,18 @@ public class Loan {
     }
 
     public Money getAmountDue(){
-        return loanAmount.times(1 /* principal */+interestRate/100d).minus(amountPaid);
+        Money totalWithInterest = loanAmount.times(1+interestRate/100d);
+        return totalWithInterest.minus(amountPaid);
     }
 
     public void repay(final Money money){
+        if (money.getAmount() <= 0) {
+            throw new IllegalArgumentException("Repayment amount must be positive");
+        }
+        if (borrower.getBalance().getAmount() < 0) {
+            throw new IllegalArgumentException("Borrower has insufficient balance");
+        }
+
         borrower.withdraw(money);
         lender.topUp(money);
         amountPaid = amountPaid.add(money);

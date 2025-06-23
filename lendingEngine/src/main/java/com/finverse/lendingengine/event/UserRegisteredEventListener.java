@@ -1,6 +1,7 @@
 package com.finverse.lendingengine.event;
 
 import com.finverse.lendingengine.model.Balance;
+import com.finverse.lendingengine.model.Role;
 import com.finverse.lendingengine.model.User;
 import com.finverse.lendingengine.repository.UserRepository;
 import com.google.gson.Gson;
@@ -40,7 +41,7 @@ public class UserRegisteredEventListener {
             validateEvent(event);
 
             UUID userId = extractUserId(event);
-            String role = extractRole(event);
+            Role role = extractRole(event);
 
             User user = new User();
             user.setUserId(userId);
@@ -69,9 +70,9 @@ public class UserRegisteredEventListener {
             throw new IllegalArgumentException("Invalid user ID format", e);
         }
     }
-    private String extractRole(Map<String, Object> event) {
-        String role = (String) event.get("role");
-        if (role == null || role.isBlank()) {
+    private Role extractRole(Map<String, Object> event) {
+        Role role = (Role) event.get("role");
+        if (role == null) {
             throw new IllegalArgumentException("Username cannot be empty");
         }
         return role;

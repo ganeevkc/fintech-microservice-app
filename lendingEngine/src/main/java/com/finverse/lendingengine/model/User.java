@@ -29,7 +29,7 @@ public class User {
 //    private int age;
 //    private String occupation;
     @Enumerated(EnumType.STRING)
-    private String role;
+    private Role role;
 
     @OneToOne(cascade = CascadeType.ALL) /*when user object gets deleted, balance will also get deleted*/
     private Balance balance;

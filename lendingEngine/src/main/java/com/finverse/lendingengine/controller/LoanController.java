@@ -7,6 +7,7 @@ import com.finverse.lendingengine.service.LoanApplicationAdapter;
 import com.finverse.lendingengine.service.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,51 +32,93 @@ public class LoanController {
     }
 
     @PostMapping("/request")
-    public void requestLoan(@RequestBody LoanRequest lonaRequest, HttpServletRequest request){
-        User borrower = tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-        loanApplicationRepository.save(loanApplicationAdapter.transform(lonaRequest,borrower));
+    public ResponseEntity<String> requestLoan(@RequestBody LoanRequest loanRequest, HttpServletRequest request) {
+        try {
+            User borrower = tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+            LoanApplication application = loanApplicationAdapter.transform(loanRequest, borrower);
+            loanApplicationRepository.save(application);
+            return ResponseEntity.ok("Loan application submitted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
     @GetMapping("/requests")
-    public List<LoanApplication> getAllLoanRequests(HttpServletRequest request){
-        tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-        return loanApplicationRepository.findAllByStatusEquals(Status.ACTIVE);
+    public ResponseEntity<List<LoanApplication>> getAllLoanRequests(HttpServletRequest request) {
+        try {
+            tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+            List<LoanApplication> applications = loanApplicationRepository.findAllByStatusEquals(Status.ACTIVE);
+            return ResponseEntity.ok(applications);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/accept/{loanApplicationId}")
+    public ResponseEntity<String> acceptLoan(@PathVariable Long loanApplicationId, HttpServletRequest request) {
+        try {
+            User lender = tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+            loanService.acceptLoan(loanApplicationId, lender.getUserId());
+            return ResponseEntity.ok("Loan accepted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{status}/borrowed")
-    public List<Loan> findBorrowedLoans(@RequestHeader String authorization, @PathVariable Status status){
-        User borrower = tokenValidationService.validateToken(authorization);
-        return loanService.findBorrowedLoans(borrower,status);
+    public ResponseEntity<List<Loan>> findBorrowedLoans(@RequestHeader String authorization, @PathVariable Status status) {
+        try {
+            User borrower = tokenValidationService.validateToken(authorization);
+            List<Loan> loans = loanService.findBorrowedLoans(borrower, status);
+            return ResponseEntity.ok(loans);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{status}/lent")
-    public List<Loan> findLentLoans(@RequestHeader String authorization,@PathVariable Status status){
-        User lender = tokenValidationService.validateToken(authorization);
-        return loanService.findLentLoans(lender,status);
+    public ResponseEntity<List<Loan>> findLentLoans(@RequestHeader String authorization, @PathVariable Status status) {
+        try {
+            User lender = tokenValidationService.validateToken(authorization);
+            List<Loan> loans = loanService.findLentLoans(lender, status);
+            return ResponseEntity.ok(loans);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/repay")
-    public void replayLoan(@RequestBody LoanRepaymentRequest loanRepaymentRequest, @RequestHeader String authorization){
-        User borrower = tokenValidationService.validateToken(authorization);
-        loanService.repayLoan(loanRepaymentRequest.getAmount(),loanRepaymentRequest.getLoanId(),borrower);
+    public ResponseEntity<String> repayLoan(@RequestBody LoanRepaymentRequest loanRepaymentRequest,
+                                            @RequestHeader String authorization) {
+        try {
+            User borrower = tokenValidationService.validateToken(authorization);
+            loanService.repayLoan(loanRepaymentRequest.getAmount(), loanRepaymentRequest.getLoanId(), borrower);
+            return ResponseEntity.ok("Loan repayment processed successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
-//    @PostMapping("/accept/{loanApplicationId}")
-//    public void acceptLoan(@PathVariable final String loanApplicationId,HttpServletRequest request){
-//        User user =tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-//        loanService.acceptLoan(Long.parseLong(loanApplicationId),user.getUsername());
-//    }
-
     @GetMapping
-    public List<Loan> getAllLoans(HttpServletRequest request){
-        tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-        return loanService.getAcceptedLoans();
+    public ResponseEntity<List<Loan>> getAllLoans(HttpServletRequest request) {
+        try {
+            tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+            List<Loan> loans = loanService.getAcceptedLoans();
+            return ResponseEntity.ok(loans);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/id/{loanId}")
-    public Loan getLoanById(@PathVariable final String loanId,HttpServletRequest request){
-        tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-        return loanService.getLoanById(UUID.fromString(loanId));
+    public ResponseEntity<Loan> getLoanById(@PathVariable String loanId, HttpServletRequest request) {
+        try {
+            tokenValidationService.validateToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+            Loan loan = loanService.getLoanById(UUID.fromString(loanId));
+            return ResponseEntity.ok(loan);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 }
