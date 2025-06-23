@@ -10,12 +10,20 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class UserRegisteredEventListener {
 
     private final ProfileService profileService;
+
+    @PostConstruct
+    public void init() {
+        log.info("=== USER EVENT LISTENER INITIALIZED ===");
+        log.info("Ready to listen on queue: user-registered-queue");
+    }
 
     @RabbitListener(queues = "${app.events.queue}")
     public void handleUserRegisteredEvent(@Payload UserRegisteredEvent event) {
@@ -24,14 +32,13 @@ public class UserRegisteredEventListener {
             log.info("Event details: {}", event);
             log.info("User ID: {}, Username: {}, Role: {}",
                     event.getUserId(), event.getUsername(), event.getRole());
-//            validateEvent(event);
-            log.info("Received event: {}", event);
-            Role role = Role.valueOf(event.getRole().toUpperCase());
 
+//            Role role = Role.valueOf(event.getRole().toUpperCase());
+            String role = event.getRole();
             UserProfile profile = profileService.createBasicProfile(
                     event.getUserId(),
                     event.getUsername(),
-                    role
+                    Role.valueOf(role)
             );
 
             log.info("Successfully created profile for user: {}", event.getUsername());

@@ -3,48 +3,38 @@ package com.finverse.lendingengine.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "balance")
 public class Balance {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    private double amount;
+    @Column(name = "amount")
+    private double amount = 0.0;
 
-//    @ElementCollection
-    @MapKeyClass(Currency.class)
-    @OneToMany(targetEntity = Money.class,cascade = CascadeType.ALL)
-    public Map<Currency,Money> moneyMap = new HashMap<>();
+    // Simplified - remove complex money map for now
+    // We can add it back later if needed
 
-    public void topUp(final Money money){
-        if(moneyMap.get(money.getCurrency())==null){
-            moneyMap.put(money.getCurrency(),money);
-        }else{
-            moneyMap.put(money.getCurrency(),
-                    moneyMap.get(money.getCurrency()).add(money));
-        }
+    public void topUp(final Money money) {
+        this.amount += money.getAmount();
     }
 
-    public void withdraw(final Money money){
-        final Money moneyInBalance = moneyMap.get(money.getCurrency());
-        if(moneyInBalance==null){
-            throw new IllegalArgumentException();
-        }else{
-            moneyMap.put(money.getCurrency(),moneyMap.get(money.getCurrency()).minus(money));
+    public void withdraw(final Money money) {
+        if (this.amount < money.getAmount()) {
+            throw new IllegalArgumentException("Insufficient balance");
         }
+        this.amount -= money.getAmount();
     }
-
-//    public Map<Currency, Money> getMoneyMap() {
-//        return moneyMap;
-//    }
 }

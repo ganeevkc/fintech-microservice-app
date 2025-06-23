@@ -4,14 +4,11 @@ import com.finverse.lendingengine.model.Balance;
 import com.finverse.lendingengine.model.Role;
 import com.finverse.lendingengine.model.User;
 import com.finverse.lendingengine.repository.UserRepository;
-import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -19,62 +16,81 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserRegisteredEventListener {
 
-//    private final RabbitTemplate rabbitTemplate;
-//    private final Logger logger = LoggerFactory.getLogger(UserRegisteredEventListener.class);
-
-//    private static final Gson GSON = new Gson(); // to deserialize JSON coming from RabbitMQ into a Java object
-
-//    private final UserRepository userRepository;
-
-//    @Autowired
-//    public UserRegisteredEventListener(RabbitTemplate rabbitTemplate, UserRepository userRepository) {
-//        this.rabbitTemplate = rabbitTemplate;
-//        this.userRepository = userRepository;
-//    }
+    private final UserRepository userRepository;
 
     @RabbitListener(queues = "${app.events.queue}")
-    public void handleUserRegistration(Map<String, Object> event){
+    public void handleUserRegistration(@Payload UserRegisteredEvent event) {
+        log.info("=== RECEIVED USER REGISTRATION EVENT ===");
+        log.info("Event data: {}", event);
 
         try {
-//            validateEvent(event);
+            log.info("Processing user registration: userId={}, username={}, role={}",
+                    event.getUserId(), event.getUsername(), event.getRole());
 
-            UUID userId = extractUserId(event);
-            Role role = extractRole(event);
+            if (userRepository.existsById(event.getUserId())) {
+                log.warn("User with ID {} already exists, skipping creation", event.getUserId());
+                return;
+            }
 
+            UUID userId = event.getUserId();
+            String username = event.getUsername();
+            String role = event.getRole();
+//            UUID userId = extractUserId(event);
+//            String username = extractUsername(event);
+//            Role role = extractRole(event);
+
+            log.info("Processing user registration: userId={}, username={}, role={}", userId, username, role);
+
+            // Create new user with balance
             User user = new User();
             user.setUserId(userId);
-            user.setBalance(new Balance());
-            user.setRole(role);
+            user.setRole(Role.valueOf(role));
+            Balance balance = new Balance();
+            balance.setAmount(0.0);
+            user.setBalance(balance);
+
+            // Save user to database
+            User savedUser = userRepository.save(user);
+            log.info("✅ User successfully created in lending engine: {}", savedUser);
 
         } catch (Exception e) {
-            throw new AmqpRejectAndDontRequeueException("Permanent failure", e);
+            log.error("❌ Failed to process user registration event: {}", e.getMessage(), e);
+            throw new AmqpRejectAndDontRequeueException("Permanent failure processing user registration", e);
         }
     }
 
-    private void validateEvent(Map<String, Object> event) {
-        if (!"USER_REGISTERED".equals(event.get("eventType"))) {
-            throw new IllegalArgumentException("Invalid event type");
-        }
-
-        if (event.get("userId") == null || event.get("username") == null || event.get("role") == null) {
-            throw new IllegalArgumentException("Missing required fields");
-        }
-    }
-
-    private UUID extractUserId(Map<String, Object> event) {
-        try {
-            return UUID.fromString((String) event.get("userId"));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid user ID format", e);
-        }
-    }
-    private Role extractRole(Map<String, Object> event) {
-        Role role = (Role) event.get("role");
-        if (role == null) {
-            throw new IllegalArgumentException("Username cannot be empty");
-        }
-        return role;
-    }
+//    private UUID extractUserId(Map<String, Object> event) {
+//        try {
+//            Object userIdObj = event.get("userId");
+//            if (userIdObj == null) {
+//                throw new IllegalArgumentException("userId is missing from event");
+//            }
+//            return UUID.fromString(userIdObj.toString());
+//        } catch (IllegalArgumentException e) {
+//            throw new IllegalArgumentException("Invalid user ID format", e);
+//        }
+//    }
+//
+//    private String extractUsername(Map<String, Object> event) {
+//        Object usernameObj = event.get("username");
+//        if (usernameObj == null || usernameObj.toString().trim().isEmpty()) {
+//            throw new IllegalArgumentException("Username cannot be empty");
+//        }
+//        return usernameObj.toString();
+//    }
+//
+//    private Role extractRole(Map<String, Object> event) {
+//        try {
+//            Object roleObj = event.get("role");
+//            if (roleObj == null) {
+//                throw new IllegalArgumentException("Role is missing from event");
+//            }
+//            return Role.valueOf(roleObj.toString().toUpperCase());
+//        } catch (IllegalArgumentException e) {
+//            throw new IllegalArgumentException("Invalid role format: " + event.get("role"), e);
+//        }
+//    }
 }

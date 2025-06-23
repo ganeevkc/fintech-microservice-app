@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 public class TokenResponse {
     private String token;
+    private String userId;
 
     public TokenResponse() {}
 
@@ -14,4 +15,8 @@ public class TokenResponse {
         this.token = token;
     }
 
+    public TokenResponse(String token, String userId) {
+        this.token = token;
+        this.userId = userId;
+    }
 }

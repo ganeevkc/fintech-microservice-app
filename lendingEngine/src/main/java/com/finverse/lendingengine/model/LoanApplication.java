@@ -3,72 +3,63 @@ package com.finverse.lendingengine.model;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 @Entity
 @Data
+@Table(name = "loan_application")
 public final class LoanApplication {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Money loanAmount;
+    @Column(name = "loan_amount")
+    private double loanAmount;
 
-    @ManyToOne
+    @Column(name = "currency")
+    @Enumerated(EnumType.STRING)
+    private Currency currency = Currency.USD;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "borrower_user_id", columnDefinition = "BINARY(16)")
     private User borrower;
 
+    @Column(name = "repayment_term")
     private int repaymentTerm;
+
+    @Column(name = "interest_rate")
     private double interestRate;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private Status status;
 
     public LoanApplication() {}
 
     public LoanApplication(Money amount, User borrower, int repaymentTerm, double interestRate) {
-        this.loanAmount = amount;
+        this.loanAmount = amount.getAmount();
+        this.currency = amount.getCurrency();
         this.borrower = borrower;
         this.repaymentTerm = repaymentTerm;
         this.interestRate = interestRate;
         this.status = Status.ACTIVE;
     }
 
-    public Loan acceptLoanApplication(final User lender){
-        if (lender.getBalance().getAmount() < 0) {
+    public Money getLoanAmount() {
+        return new Money(currency, loanAmount);
+    }
+
+    public Loan acceptLoanApplication(final User lender) {
+        if (lender.getBalance().getAmount() < loanAmount) {
             throw new IllegalArgumentException("Lender has insufficient balance");
         }
-        lender.withdraw(getLoanAmount());
-        borrower.topUp(getLoanAmount());
+
+        Money loanMoney = new Money(currency, loanAmount);
+        lender.withdraw(loanMoney);
+        borrower.topUp(loanMoney);
         status = Status.COMPLETED;
+
         return new Loan(lender, this);
-    }
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LoanApplication that = (LoanApplication) o;
-        return Objects.equals(loanAmount, that.loanAmount) &&
-                Double.compare(that.interestRate, interestRate) == 0 &&
-                Objects.equals(id, that.id) &&
-                Objects.equals(borrower, that.borrower) &&
-                Objects.equals(repaymentTerm, that.repaymentTerm);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, loanAmount, borrower, repaymentTerm, interestRate);
-    }
-
-    @Override
-    public String toString() {
-        return "LoanApplication{" +
-                "id=" + id +
-                ", amount=" + loanAmount +
-                ", borrower=" + borrower +
-                ", repaymentTerm=" + repaymentTerm +
-                ", interestRate=" + interestRate +
-                '}';
     }
 }

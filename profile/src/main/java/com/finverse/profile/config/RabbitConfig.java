@@ -1,6 +1,8 @@
 package com.finverse.profile.config;
 
 //import com.rabbitmq.client.ConnectionFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
@@ -13,6 +15,8 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
 
 @Configuration
 @EnableRabbit
@@ -27,6 +31,11 @@ public class RabbitConfig {
     @Value("${app.events.routing-key}")
     private String routingKey;
 
+    @PostConstruct
+    public void logStartup() {
+        log.info("=== PROFILE SERVICE RABBIT CONFIG LOADING ===");
+        log.info("Exchange: {}, Queue: {}, Routing Key: {}", exchange, queue, routingKey);
+    }
     @Bean
     public TopicExchange userEventsExchange() {
         log.info("Creating exchange: {}", exchange);
@@ -50,7 +59,11 @@ public class RabbitConfig {
 
     @Bean
     public Jackson2JsonMessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        return new Jackson2JsonMessageConverter(objectMapper);
     }
 
     @Bean
