@@ -1,6 +1,7 @@
 package com.finverse.auth;
 
 import com.finverse.auth.service.JWTTokenService;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,13 +14,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @Import({JWTTokenService.class})
 @EnableDiscoveryClient
-@EnableSwagger2
+@EnableRabbit
 public class AuthenticationServiceApplication implements CommandLineRunner{
-//	@Autowired
-//	private UserRepository userRepository;
-//	private final static String PASSWORD_SALT ="wolverine";
-//	private final static String PASSWORD ="12345";
-
 	public static void main(String[] args) {
 		SpringApplication.run(AuthenticationServiceApplication.class, args);
 	}

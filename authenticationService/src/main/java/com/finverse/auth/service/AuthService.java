@@ -47,10 +47,11 @@ public class AuthService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setRole(request.getRole());
             User savedUser = userRepository.save(user);
-            eventPublisher.publishUserRegisteredEvent(
+
+            eventPublisher.publishUserRegistrationEvent(
                     savedUser.getId(),
                     savedUser.getUsername(),
-                    savedUser.getRole()
+                    String.valueOf(savedUser.getRole())
             );
             return true;
         } catch (Exception e) {
