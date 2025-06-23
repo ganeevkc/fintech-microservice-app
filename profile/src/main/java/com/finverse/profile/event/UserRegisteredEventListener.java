@@ -28,12 +28,12 @@ public class UserRegisteredEventListener {
 //    private final ConnectionFactory connectionFactory;
 
     @RabbitListener(queues = "${app.events.queue}")
-    public void handleUserRegisteredEvent(Map<String, Object> event) {
+    public void handleUserRegisteredEvent(@Payload Map<String, Object> event) {
         try {
 
             // 1. Validate event structure
-            validateEvent(event);
-
+//            validateEvent(event);
+            log.info("Received event: {}", event);
             // 2. Extract and validate fields
             UUID userId = extractUserId(event);
             String username = extractUsername(event);

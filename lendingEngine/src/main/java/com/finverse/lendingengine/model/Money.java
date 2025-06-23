@@ -28,6 +28,10 @@ public final class Money {
 
     public Money() {}
 
+    public Money(int i) {
+        this.amount = (double) i;
+    }
+
     public Money add(final Money money){
         if(currency!= money.getCurrency()){
             throw new IllegalArgumentException();

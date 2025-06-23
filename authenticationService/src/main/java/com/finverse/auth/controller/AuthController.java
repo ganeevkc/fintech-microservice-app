@@ -50,10 +50,15 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request){
-        if (authenticationService.register(request)) {
-            return new ResponseEntity<>("User registered successfully. Please complete user profile.", HttpStatus.OK);
+        try {
+            if (authenticationService.register(request)) {
+                return new ResponseEntity<>("User registered successfully. Please complete user profile.", HttpStatus.OK);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Error registering user.", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>("Error registering user.", HttpStatus.BAD_REQUEST);
+        return null;
     }
 
 

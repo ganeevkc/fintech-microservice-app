@@ -16,11 +16,11 @@ public class JwtValidationFilter extends AbstractGatewayFilterFactory {
 
     private final JwtParser jwtParser;
 
-    @Value("${jwt.secret}")
-    private String secret;
+//    @Value("${jwt.secret}")
+//    private String secret;
 
-    public JwtValidationFilter() {
-        super(ObjectInputFilter.Config.class);
+    public JwtValidationFilter(@Value("${jwt.secret}") String secret) {
+        super(Config.class);
         this.jwtParser = Jwts.parser()
                 .setSigningKey(secret.getBytes()) // Replace with env variable
                 .build();

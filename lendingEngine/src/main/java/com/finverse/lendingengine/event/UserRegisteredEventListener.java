@@ -38,7 +38,7 @@ public class UserRegisteredEventListener {
     public void handleUserRegistration(Map<String, Object> event){
 
         try {
-            validateEvent(event);
+//            validateEvent(event);
 
             UUID userId = extractUserId(event);
             Role role = extractRole(event);

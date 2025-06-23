@@ -1,14 +1,17 @@
 package com.finverse.auth.service;
 
-import com.finverse.security.user.service.TokenService;
+
+import com.finverse.auth.repository.TokenService;
 import com.google.common.collect.ImmutableMap;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
@@ -49,14 +52,53 @@ public class JWTTokenService implements TokenService, Clock {
 
     @Override
     public Map<String, String> untrusted(String token) {
-        final JwtParser parser = getParser();
-        final String noSignature = substringBeforeLast(token, DOT) + DOT;
-        return parseClaims(() -> parser.parseClaimsJwt(noSignature).getBody()); // parseClaimsJwt not JWS (no signature)
+        String noSignature = substringBeforeLast(token, DOT) + DOT;
+        return parseClaims(() -> Jwts.parser()
+                .unsecured()
+                .clock(this)
+                .build()
+                .parseClaimsJwt(noSignature)
+                .getPayload());
     }
 
     @Override
     public Map<String, String> verify(String token) {
-        return parseClaims(() -> getParser().parseClaimsJws(token).getBody());
+        return parseClaims(() -> Jwts.parser()
+                .verifyWith((SecretKey) secretKey)
+                .clock(this)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload());
+    }
+
+//    @Override
+//    public Instant now() {
+//        return Instant.now();
+//    }
+
+    private String newToken(final Map<String, String> attributes, final int expirationInSec) {
+        Instant now = Instant.now();
+        Instant expiration = (expirationInSec > 0) ?
+                now.plusSeconds(expirationInSec) : null;
+
+        return Jwts.builder()
+                .issuer(issuer)
+                .issuedAt(Date.from(now))
+                .expiration(expiration != null ? Date.from(expiration) : null)
+                .claims(attributes)  // All custom claims at once
+                .signWith(secretKey)
+                .compact();
+    }
+
+    private static Map<String, String> parseClaims(Supplier<Claims> toClaims) {
+        try {
+            Claims claims = toClaims.get();
+            ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+            claims.forEach((key, value) -> builder.put(key, String.valueOf(value)));
+            return builder.build();
+        } catch (IllegalArgumentException | JwtException e) {
+            return ImmutableMap.of();
+        }
     }
 
     @Override
@@ -64,46 +106,13 @@ public class JWTTokenService implements TokenService, Clock {
         return new Date();
     }
 
-    private String newToken(final Map<String, String> attributes, final int expirationInSec) {
-        final LocalDateTime currentTime = LocalDateTime.now();
-        final Claims claims = (Claims) Jwts
-                .claims()
-                .setIssuer(issuer)
-                .setIssuedAt(Date.from(currentTime.toInstant(ZoneOffset.UTC)));
-
-        if (expirationInSec > 0) {
-            final LocalDateTime expiresAt = currentTime.plusSeconds(expirationInSec);
-            claims.setExpiration(Date.from(expiresAt.toInstant(ZoneOffset.UTC)));
-        }
-
-        claims.putAll(attributes);
-
-        return Jwts
-                .builder()
-                .setClaims(claims)
-                .signWith(secretKey, SignatureAlgorithm.HS256)
-//                .compressWith(CompressionCodecs.GZIP) // ✅ Use public CompressionCodecs
-                .compact();
-    }
-
-    private static Map<String, String> parseClaims(final Supplier<Claims> toClaims) {
-        try {
-            final Claims claims = toClaims.get();
-            final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-            claims.forEach((key, value) -> builder.put(key, String.valueOf(value)));
-            return builder.build();
-        } catch (final IllegalArgumentException | JwtException e) {
-            return ImmutableMap.of();
-        }
-    }
-
-    private JwtParser getParser() {
-        return Jwts
-                .parserBuilder()
-                .requireIssuer(issuer)
-                .setClock(this)
-                .setAllowedClockSkewSeconds(clockSkewSec)
-                .setSigningKey(secretKey)
-                .build();
-    }
+//    private JwtParser getParser() {
+//        return Jwts
+//                .parserBuilder()
+//                .requireIssuer(issuer)
+//                .setClock(this)
+//                .setAllowedClockSkewSeconds(clockSkewSec)
+//                .setSigningKey(secretKey)
+//                .build();
+//    }
 }

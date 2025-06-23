@@ -17,7 +17,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 //@EnableSwagger2
 @EnableFeignClients
 @EnableDiscoveryClient
-@Import({com.finverse.security.user.utils.JwtTokenUtil.class})
+//@Import({com.finverse.security.user.utils.JwtTokenUtil.class})
 public class ProfileApplication implements CommandLineRunner {
 
 //	@Autowired

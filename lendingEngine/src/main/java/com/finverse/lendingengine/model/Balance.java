@@ -18,6 +18,7 @@ public class Balance {
     @Id
     @GeneratedValue
     private UUID id;
+
     private double amount;
 
 //    @ElementCollection

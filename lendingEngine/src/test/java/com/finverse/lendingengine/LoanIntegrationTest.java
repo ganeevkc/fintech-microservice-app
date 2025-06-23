@@ -2,6 +2,7 @@ package com.finverse.lendingengine;
 
 import com.finverse.lendingengine.model.LoanApplicationDTO;
 import com.finverse.lendingengine.model.LoanRequest;
+import com.finverse.lendingengine.model.Money;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Assertions;
@@ -40,7 +41,7 @@ public class LoanIntegrationTest {
         final String baseURL = "http://localhost:"+serverPort+"/loan";
         HttpHeaders httpHeaders = getHttpHeaders();
 
-        HttpEntity<LoanRequest> request = new HttpEntity<>(new LoanRequest(500,365,5.2),httpHeaders);
+        HttpEntity<LoanRequest> request = new HttpEntity<>(new LoanRequest(new Money(500),365,5.2),httpHeaders);
 
         testRestTemplate.postForEntity(baseURL+"/request", request,String.class);
 
@@ -49,7 +50,7 @@ public class LoanIntegrationTest {
 
         List<LoanApplicationDTO> loanApplicationDTOS = GSON.fromJson(response.getBody(), new TypeToken<List<LoanApplicationDTO>>(){}.getType());
         assertEquals(1,loanApplicationDTOS.size());
-        Assertions.assertEquals(loanApplicationDTOS.get(0).getBorrower().getUsername(), JOHN);
+        Assertions.assertEquals(loanApplicationDTOS.get(0).getBorrower().getUserId(), JOHN);
     }
 
     private HttpHeaders getHttpHeaders() {
