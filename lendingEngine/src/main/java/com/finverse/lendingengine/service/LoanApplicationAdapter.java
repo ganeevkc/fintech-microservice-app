@@ -24,6 +24,7 @@ public class LoanApplicationAdapter {
         if(userOptional.isPresent()){
             return new LoanApplication(loanRequest.getAmount(),
                     userOptional.get(),
+                    loanRequest.getPurpose(),
                     loanRequest.getDaysToRepay(),
                     loanRequest.getInterestRate());
         }else {

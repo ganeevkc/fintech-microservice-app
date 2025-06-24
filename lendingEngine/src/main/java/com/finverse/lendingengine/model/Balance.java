@@ -22,10 +22,7 @@ public class Balance {
     private UUID id;
 
     @Column(name = "amount")
-    private double amount = 0.0;
-
-    // Simplified - remove complex money map for now
-    // We can add it back later if needed
+    private double amount ;
 
     public void topUp(final Money money) {
         this.amount += money.getAmount();

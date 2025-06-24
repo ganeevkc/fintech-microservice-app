@@ -53,7 +53,7 @@ public class LoanService {
     }
 
     public List<Loan> findBorrowedLoans(final User borrower,final Status status) {
-        return loanrepository.findByBorrowerAndStatus(borrower,status);
+        return loanrepository.findByBorrowerAndStatus(borrower, status);
     }
     public List<Loan> findLentLoans(final User lender,final Status status) {
         return loanrepository.findByLenderAndStatus(lender,status);

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -21,20 +22,20 @@ public class BalanceService {
     }
 
     @Transactional
-    public void topUpBalance(final Money money, String authToken){
-        User user = findUser(authToken);
-        user.topUp(money);
+    public void topUpBalance(final Money amount, UUID userId){
+        User user = findUser(userId);
+        user.topUp(amount);
     }
 
     @Transactional
-    public void withdrawBalance(final Money money,String authToken){
-        User user = findUser(authToken);
-        user.withdraw(money);
+    public void withdrawBalance(final Money amount,UUID userId){
+        User user = findUser(userId);
+        user.withdraw(amount);
     }
 
-    private User findUser(String authToken) {
-        return userRepository.findById(UUID.fromString(authToken))
-                .orElseThrow(() -> new UserNotFoundException(authToken));
+    private User findUser(UUID userId) {
+        Optional<User> user = userRepository.findById(userId);
+        return user.orElse(null);
     }
 
 }

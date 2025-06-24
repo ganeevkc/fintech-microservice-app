@@ -20,10 +20,6 @@ public final class LoanRepaymentRequest {
         return new Money(Currency.USD,amount);
     }
 
-//    public long getLoanId() {
-//        return loanId;
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

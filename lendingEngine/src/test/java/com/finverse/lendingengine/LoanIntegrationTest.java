@@ -1,6 +1,6 @@
 package com.finverse.lendingengine;
 
-import com.finverse.lendingengine.model.LoanApplicationDTO;
+import com.finverse.lendingengine.dto.LoanApplicationDTO;
 import com.finverse.lendingengine.model.LoanRequest;
 import com.finverse.lendingengine.model.Money;
 import com.google.gson.Gson;

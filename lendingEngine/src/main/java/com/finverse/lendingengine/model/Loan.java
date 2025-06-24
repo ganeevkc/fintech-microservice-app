@@ -15,18 +15,18 @@ public class Loan {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", columnDefinition = "BINARY(16)")
+    @Column(name = "id")
     private UUID id;
 
-    @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    @Column(name = "user_id")
     private UUID userId; // Link to Auth user
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "borrower_user_id", columnDefinition = "BINARY(16)")
+    @JoinColumn(name = "borrower_user_id")
     private User borrower;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lender_user_id", columnDefinition = "BINARY(16)")
+    @JoinColumn(name = "lender_user_id")
     private User lender;
 
     @Column(name = "loan_amount")
@@ -34,7 +34,7 @@ public class Loan {
 
     @Column(name = "currency")
     @Enumerated(EnumType.STRING)
-    private Currency currency = Currency.USD;
+    private Currency currency;
 
     @Column(name = "interest_rate")
     private double interestRate;
@@ -46,7 +46,7 @@ public class Loan {
     private LocalDate dateDue;
 
     @Column(name = "amount_paid")
-    private double amountPaid = 0.0;
+    private double amountPaid;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
