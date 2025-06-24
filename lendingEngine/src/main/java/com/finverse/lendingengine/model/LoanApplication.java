@@ -19,11 +19,14 @@ public final class LoanApplication {
 
     @Column(name = "currency")
     @Enumerated(EnumType.STRING)
-    private Currency currency = Currency.USD;
+    private Currency currency;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "borrower_user_id", columnDefinition = "BINARY(16)")
     private User borrower;
+
+    @Column(name = "purpose")
+    private String purpose;
 
     @Column(name = "repayment_term")
     private int repaymentTerm;
@@ -37,9 +40,10 @@ public final class LoanApplication {
 
     public LoanApplication() {}
 
-    public LoanApplication(Money amount, User borrower, int repaymentTerm, double interestRate) {
+    public LoanApplication(Money amount, User borrower, String purpose, int repaymentTerm, double interestRate) {
         this.loanAmount = amount.getAmount();
         this.currency = amount.getCurrency();
+        this.purpose = purpose;
         this.borrower = borrower;
         this.repaymentTerm = repaymentTerm;
         this.interestRate = interestRate;

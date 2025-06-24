@@ -8,6 +8,7 @@ import java.util.Objects;
 public class LoanApplicationDTO {
     private long id;
     private Money amount;
+    private String purpose;
     private User borrower;
     private int daysToRepay;
     private double interestRate;

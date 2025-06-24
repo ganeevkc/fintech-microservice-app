@@ -7,11 +7,13 @@ import java.util.Objects;
 @Data
 public class LoanRequest {
     private Money amount;
+    private String purpose;
     private int daysToRepay;
     private double interestRate;
 
-    public LoanRequest(Money amount, int daysToRepay, double interestRate) {
+    public LoanRequest(Money amount, String purpose, int daysToRepay, double interestRate) {
         this.amount = amount;
+        this.purpose=purpose;
         this.daysToRepay = daysToRepay;
         this.interestRate = interestRate;
     }

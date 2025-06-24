@@ -37,14 +37,14 @@ public class UserController {
 //        return "Lending status for user: " + userId;
 //    }
 
-    @GetMapping("/current-balance")
+    @GetMapping("/current-balance") //done
     public ResponseEntity<Double> getCurrentBalance(
             @RequestHeader("X-User-ID") UUID userId) {
         double balance = userService.getCurrBalance(userId);
         return new ResponseEntity<>(balance, HttpStatus.OK);
     }
 
-    @GetMapping("/lending-info")
+    @GetMapping("/lending-info") //done
     public ResponseEntity<UserLendingInfoDTO> getLendingInfo(
             @RequestHeader("X-User-ID") UUID userId) {
         UserLendingInfoDTO info = userService.lendingInfo(userId);
