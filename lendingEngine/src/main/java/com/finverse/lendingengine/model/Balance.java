@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
 import java.util.UUID;
 
@@ -16,13 +15,13 @@ import java.util.UUID;
 public class Balance {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", columnDefinition = "BINARY(16)")
-    private UUID id;
+    @GeneratedValue(generator = "string-uuid")
+    @GenericGenerator(name = "string-uuid", strategy = "com.finverse.lendingengine.config.StringUUIDGenerator")
+    @Column(name = "id", columnDefinition = "VARCHAR(36)", nullable = false)
+    private String id;
 
-    @Column(name = "amount")
-    private double amount ;
+    @Column(name = "amount",nullable = false)
+    private double amount;
 
     public void topUp(final Money money) {
         this.amount += money.getAmount();

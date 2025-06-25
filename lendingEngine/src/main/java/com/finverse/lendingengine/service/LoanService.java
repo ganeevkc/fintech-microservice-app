@@ -7,22 +7,27 @@ import com.finverse.lendingengine.exception.LoanApplicationNotFound;
 import com.finverse.lendingengine.exception.LoanNotFoundException;
 import com.finverse.lendingengine.exception.UserNotFoundException;
 import com.finverse.lendingengine.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class LoanService {
+
     private final LoanApplicationRepository loanApplicationRepository;
     private final UserRepository userRepository;
     private final LoanRepository loanrepository;
 
     @Autowired
-    public LoanService(LoanApplicationRepository loanApplicationRepository, UserRepository userRepository, LoanRepository loanrepository) {
+    public LoanService(LoanApplicationRepository loanApplicationRepository, UserRepository userRepository, LoanRepository loanrepository, CreditScoringService creditScoringService) {
         this.loanApplicationRepository = loanApplicationRepository;
         this.userRepository = userRepository;
         this.loanrepository = loanrepository;
@@ -30,10 +35,17 @@ public class LoanService {
 
     @Transactional
     public void acceptLoan(final long loanApplicationId, final UUID userId){
-        Optional<User> lender = userRepository.findById(userId);
+        String userIdString = userId.toString();
+        Optional<User> lender = userRepository.findById(userIdString);
         if (lender.isPresent()) {
             LoanApplication loanApplication = findLoanApplication(loanApplicationId);
-            loanrepository.save(loanApplication.acceptLoanApplication(lender.get()));
+            Loan loan = loanApplication.acceptLoanApplication(lender.get());
+            loanrepository.save(loan);
+            CreditScoringService.updateScoreAfterLoanEvent(
+                    loanApplication.getBorrower().getUserId(), "LOAN_ACCEPTED");
+            CreditScoringService.updateScoreAfterLoanEvent(userId, "LOAN_GIVEN");
+            log.info("Loan {} accepted by lender {}. Credit scores updated.",
+                    loanApplicationId, userId);
         }
     }
 
@@ -46,6 +58,29 @@ public class LoanService {
         Money actualPaidAmount = amountToRepay.getAmount() > loan.getAmountDue().getAmount() ?
                 loan.getAmountDue() : amountToRepay;
         loan.repay(actualPaidAmount);
+        loanrepository.save(loan);
+        String eventType = loan.getStatus() == Status.COMPLETED ? "LOAN_COMPLETED" : "REPAYMENT_MADE";
+        CreditScoringService.updateScoreAfterLoanEvent(borrower.getUserId(), eventType);
+        log.info("Loan repayment processed for loan {}. Amount: {}, Event: {}, Credit score updated.",
+                loanId, actualPaidAmount, eventType);
+    }
+
+    @Transactional
+    public void processLoanDefaults() {
+        LocalDate today = LocalDate.now();
+        List<Loan> overdueLoans = loanrepository.findByStatus(Status.ACTIVE)
+                .stream()
+                .filter(loan -> loan.getDateDue().isBefore(today.minusDays(30))) // 30 days overdue
+                .collect(Collectors.toList());
+
+        for (Loan loan : overdueLoans) {
+            // Mark as defaulted (you might want to add a DEFAULTED status)
+            log.warn("Loan {} is 30+ days overdue. Updating credit score for borrower {}",
+                    loan.getId(), loan.getBorrower().getUserId());
+
+            CreditScoringService.updateScoreAfterLoanEvent(
+                    loan.getBorrower().getUserId(), "LOAN_DEFAULTED");
+        }
     }
 
     public List<Loan> getAcceptedLoans() {
@@ -60,17 +95,14 @@ public class LoanService {
     }
 
     public Loan getLoanById(UUID loanId) {
-        Optional<Loan> loanObject = loanrepository.findById(loanId);
+        String loanIdString = loanId.toString();
+        Optional<Loan> loanObject = loanrepository.findById(loanIdString);
         if(loanObject.isPresent()){
             return loanObject.get();
         }else{
             throw new LoanNotFoundException(loanId);
         }
     }
-
-//    private User findUser(String username) {
-//        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
-//    }
 
     private LoanApplication findLoanApplication(long loanApplicationId) {
         return loanApplicationRepository.findById(loanApplicationId).

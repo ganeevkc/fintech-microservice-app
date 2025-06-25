@@ -1,22 +1,16 @@
 package com.finverse.lendingengine;
 
-import com.finverse.lendingengine.model.Balance;
-import com.finverse.lendingengine.model.User;
 import com.finverse.lendingengine.repository.UserRepository;
-import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.context.annotation.Bean;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import java.util.stream.IntStream;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-//@EnableSwagger2
 @EnableDiscoveryClient
+@EnableScheduling
 public class LendingengineApplication implements CommandLineRunner {
     @Autowired
     private UserRepository userRepository;

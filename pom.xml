@@ -22,7 +22,6 @@
         <module>lendingEngine</module>
         <module>profile</module>
         <module>authenticationService</module>
-        <module>security</module>
         <module>eurekaServer</module>
         <module>apiGateway</module>
     </modules>

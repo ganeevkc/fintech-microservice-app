@@ -20,7 +20,7 @@ public class LoanApplicationAdapter {
     }
 
     public LoanApplication transform(LoanRequest loanRequest, User borrower){
-        Optional<User> userOptional = userRepository.findById(borrower.getUserId());
+        Optional<User> userOptional = userRepository.findById(borrower.getUserIdString());
         if(userOptional.isPresent()){
             return new LoanApplication(loanRequest.getAmount(),
                     userOptional.get(),
