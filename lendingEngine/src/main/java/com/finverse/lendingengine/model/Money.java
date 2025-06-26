@@ -19,10 +19,10 @@ public final class Money {
     public static final Money ZERO = new Money(Currency.USD, 0.0);
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(generator = "string-uuid")
+    @GenericGenerator(name = "string-uuid", strategy = "com.finverse.lendingengine.config.StringUUIDGenerator")
     @Column(name = "id", columnDefinition = "VARCHAR(36)")
-    private UUID id;
+    private String id;
 
     @NotNull(message = "Currency is required")
     @Enumerated(EnumType.STRING)

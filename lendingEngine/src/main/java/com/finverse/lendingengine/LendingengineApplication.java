@@ -12,8 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDiscoveryClient
 @EnableScheduling
 public class LendingengineApplication implements CommandLineRunner {
-    @Autowired
-    private UserRepository userRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(LendingengineApplication.class, args);

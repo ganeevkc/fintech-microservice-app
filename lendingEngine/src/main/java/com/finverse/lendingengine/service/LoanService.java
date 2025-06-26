@@ -27,7 +27,7 @@ public class LoanService {
     private final LoanRepository loanrepository;
 
     @Autowired
-    public LoanService(LoanApplicationRepository loanApplicationRepository, UserRepository userRepository, LoanRepository loanrepository, CreditScoringService creditScoringService) {
+    public LoanService(LoanApplicationRepository loanApplicationRepository, UserRepository userRepository, LoanRepository loanrepository) {
         this.loanApplicationRepository = loanApplicationRepository;
         this.userRepository = userRepository;
         this.loanrepository = loanrepository;
@@ -35,17 +35,43 @@ public class LoanService {
 
     @Transactional
     public void acceptLoan(final long loanApplicationId, final UUID userId){
+        log.info("🔥 Starting loan acceptance - Application ID: {}, Lender ID: {}", loanApplicationId, userId);
+
         String userIdString = userId.toString();
-        Optional<User> lender = userRepository.findById(userIdString);
-        if (lender.isPresent()) {
+        Optional<User> lenderOpt = userRepository.findByUserIdString(userIdString);
+
+        if (lenderOpt.isPresent()) {
+            User lender = lenderOpt.get();
+            log.info("✅ Lender found: {}", lender.getUserId());
+
             LoanApplication loanApplication = findLoanApplication(loanApplicationId);
-            Loan loan = loanApplication.acceptLoanApplication(lender.get());
-            loanrepository.save(loan);
-            CreditScoringService.updateScoreAfterLoanEvent(
-                    loanApplication.getBorrower().getUserId(), "LOAN_ACCEPTED");
-            CreditScoringService.updateScoreAfterLoanEvent(userId, "LOAN_GIVEN");
-            log.info("Loan {} accepted by lender {}. Credit scores updated.",
-                    loanApplicationId, userId);
+            log.info("✅ Loan application found: {}, Borrower: {}, Amount: {}",
+                    loanApplication.getId(),
+                    loanApplication.getBorrower().getUserId(),
+                    loanApplication.getLoanAmount().getAmount());
+
+            // Accept the loan application - this creates the Loan entity
+            Loan loan = loanApplication.acceptLoanApplication(lender);
+            log.info("✅ Loan created: ID={}, Borrower={}, Lender={}, Amount={}, Status={}",
+                    loan.getId(),
+                    loan.getBorrower().getUserId(),
+                    loan.getLender().getUserId(),
+                    loan.getLoanAmount(),
+                    loan.getStatus());
+
+            // Save the loan
+            Loan savedLoan = loanrepository.save(loan);
+            log.info("✅ Loan saved to database: {}", savedLoan.getId());
+
+            // Update the loan application status to COMPLETED
+            loanApplication.setStatus(Status.COMPLETED);
+            loanApplicationRepository.save(loanApplication);
+            log.info("Loan application {} marked as COMPLETED", loanApplication.getId());
+
+            log.info("Loan acceptance completed successfully");
+        } else {
+            log.error("Lender not found: {}", userId);
+            throw new IllegalArgumentException("Lender not found");
         }
     }
 
@@ -53,16 +79,30 @@ public class LoanService {
     public void repayLoan(final Money amountToRepay,
                           final UUID loanId,
                           final User borrower){
-        Loan loan = loanrepository.findOneByIdAndBorrower(loanId,borrower).
-                orElseThrow(()-> new LoanNotFoundException(loanId));
+        log.info("Processing loan repayment: Loan ID: {}, Borrower: {}, Amount: {}",
+                loanId, borrower.getUserId(), amountToRepay.getAmount());
+
+        String loanIdString = loanId.toString();
+        Loan loan = loanrepository.findOneByIdAndBorrower(loanIdString, borrower)
+                .orElseThrow(() -> new LoanNotFoundException(loanId));
+
+        log.info("📋 Loan found - Current status: {}, Amount due: {}, Amount paid: {}",
+                loan.getStatus(), loan.getAmountDue().getAmount(), loan.getAmountPaid());
+
         Money actualPaidAmount = amountToRepay.getAmount() > loan.getAmountDue().getAmount() ?
                 loan.getAmountDue() : amountToRepay;
+
+        log.info("💰 Actual payment amount: {}", actualPaidAmount.getAmount());
+
         loan.repay(actualPaidAmount);
-        loanrepository.save(loan);
-        String eventType = loan.getStatus() == Status.COMPLETED ? "LOAN_COMPLETED" : "REPAYMENT_MADE";
-        CreditScoringService.updateScoreAfterLoanEvent(borrower.getUserId(), eventType);
-        log.info("Loan repayment processed for loan {}. Amount: {}, Event: {}, Credit score updated.",
-                loanId, actualPaidAmount, eventType);
+
+        log.info("📊 After repayment - Status: {}, Amount due: {}, Amount paid: {}",
+                loan.getStatus(), loan.getAmountDue().getAmount(), loan.getAmountPaid());
+
+        Loan savedLoan = loanrepository.save(loan);
+        log.info("💾 Loan saved with status: {}", savedLoan.getStatus());
+
+        log.info("✅ Loan repayment processed successfully");
     }
 
     @Transactional

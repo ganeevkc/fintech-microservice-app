@@ -217,20 +217,19 @@ public class LoanController {
     @GetMapping("/credit-score")
     public ResponseEntity<CreditScoreResponse> getCreditScore(@RequestHeader("X-User-ID") @NotNull UUID userId) {
         try {
-            CreditScore creditScore = creditScoringService.getCreditScore(userId);
+            var creditScore = creditScoringService.getCreditScore(userId);
             double maxLoanAmount = creditScoringService.calculateMaxLoanAmount(userId);
             double recommendedInterestRate = creditScoringService.getRecommendedInterestRate(userId);
 
             CreditScoreResponse response = new CreditScoreResponse();
             response.setScore(creditScore.getScore());
-            response.setRiskCategory(creditScore.getRiskCategory().toString());
+            response.setRiskCategory(creditScore.getRiskCategory().toString()); // Convert enum to String
             response.setCreditLimit(creditScore.getCreditLimit());
             response.setMaxLoanAmount(maxLoanAmount);
             response.setRecommendedInterestRate(recommendedInterestRate);
             response.setTotalLoans(creditScore.getTotalLoans());
             response.setCompletedLoans(creditScore.getCompletedLoans());
             response.setRepaymentRate(creditScore.getRepaymentRate());
-
             response.setScoreRange(creditScore.getRiskCategory().getScoreRange());
             response.setDescription(creditScore.getRiskCategory().getDetailedDescription());
 
@@ -255,14 +254,13 @@ public class LoanController {
         // Use credit scoring system for loan limit
         double maxLoanAmount = creditScoringService.calculateMaxLoanAmount(borrower.getUserId());
         if (request.getAmount().getAmount() > maxLoanAmount) {
-            CreditScore creditScore = creditScoringService.getCreditScore(borrower.getUserId());
+            var creditScore = creditScoringService.getCreditScore(borrower.getUserId());
             throw new IllegalArgumentException(
                     String.format("Loan amount %.2f exceeds maximum allowed amount %.2f (Credit Score: %d, Risk: %s)",
                             request.getAmount().getAmount(), maxLoanAmount,
                             creditScore.getScore(), creditScore.getRiskCategory()));
         }
 
-        // Validate against recommended interest rate
         double recommendedRate = creditScoringService.getRecommendedInterestRate(borrower.getUserId());
         if (request.getInterestRate() < recommendedRate) {
             throw new IllegalArgumentException(
@@ -270,7 +268,6 @@ public class LoanController {
                             request.getInterestRate(), recommendedRate));
         }
 
-        // Validate purpose is not empty after trimming
         if (request.getPurpose() == null || request.getPurpose().trim().isEmpty()) {
             throw new IllegalArgumentException("Loan purpose cannot be empty");
         }
@@ -323,7 +320,8 @@ public class LoanController {
     }
 
     private User findUser(UUID userId) {
-        return userRepository.findById(String.valueOf(userId))
+        String userIdString = userId.toString();
+        return userRepository.findByUserIdString(userIdString)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
     }
 }

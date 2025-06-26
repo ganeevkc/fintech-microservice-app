@@ -36,7 +36,7 @@ public final class LoanApplication {
     private double interestRate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, columnDefinition = "ENUM('PENDING','REJECTED','COMPLETED', 'ACTIVE')")
+    @Column(name = "status", nullable = false, columnDefinition = "ENUM('PENDING','REJECTED','COMPLETED', 'ACTIVE', 'DEFAULTED')")
     private Status status;
 
     @Column(name = "created_at")
