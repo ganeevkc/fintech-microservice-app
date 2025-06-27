@@ -1,87 +1,133 @@
-version: '3.1'
-services :
-#  app:
-#    build:
-#      context: .
-#    ports:
-#      - 5005:5005
-#      - 8081:8081
-#    volumes:
-#      - .:/app
-#    command: [ "gradle", "bootRun" ]
-#  app:
-#    build:
-#      context: ./
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ./:/app
-#    working_dir: /app
-#    command: sh run.sh
-#    ports:
-#      - 8081:8080
-#    networks:
-#      - local
-  db_security:
-    image: mysql
-    container_name: 'db_security'
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: fintech_security
-      MYSQL_USER: fintech_security
-      MYSQL_PASSWORD: password
-    ports:
-      - "3306:3306"
-    networks:
-      - local
-  adminer_security:
-    image: adminer
-    container_name: 'adminer_security'
-    restart: always
-    depends_on:
-      - db_security
-    ports:
-      - 1234:8080
-    networks:
-      - local
+version: '3.8'
+services:
+   mysql:
+      image: mysql:8.0
+      container_name: fintech-mysql
+      environment:
+        MYSQL_ROOT_PASSWORD: root123
+        MYSQL_DATABASE: fintech_business
+        MYSQL_USER: fintech_user
+        MYSQL_PASSWORD: fintech_pass
+      ports:
+        - "3307:3306"
+      volumes:
+        - mysql_data:/var/lib/mysql
+        - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      networks:
+        - fintech-network
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
+        timeout: 20s
+        retries: 10
+        interval: 30s
+        start_period: 40s
+   rabbitmq:
+      image: rabbitmq:3.9-management
+      container_name: fintech-rabbitmq
+      environment:
+        RABBITMQ_DEFAULT_USER: admin
+        RABBITMQ_DEFAULT_PASS: admin123
+      ports:
+        - "5673:5672"   # AMQP port
+        - "15673:15672" # Management UI port
+      volumes:
+        - rabbitmq_data:/var/lib/rabbitmq
+      networks:
+        - fintech-network
+      healthcheck:
+        test: rabbitmq-diagnostics -q ping
+        interval: 30s
+        timeout: 30s
+        retries: 3
+        start_period: 60s
+   eureka-server:
+      build: ./eureka-server
+      container_name: fintech-eureka
+      ports:
+        - "8761:8761"
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      networks:
+        - fintech-network
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+        start_period: 60s
+   api-gateway:
+      build: ./api-gateway
+      container_name: fintech-gateway
+      ports:
+        - "8080:8080"  # Main entry point
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      depends_on:
+        eureka-server:
+          condition: service_healthy
+      networks:
+        - fintech-network
+      restart: on-failure
+   auth-service:
+      build: ./authentication-service
+      container_name: fintech-auth
+      ports:
+        - "8081:8081"
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      depends_on:
+        mysql:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_healthy
+        eureka-server:
+          condition: service_healthy
+      networks:
+        - fintech-network
+      restart: on-failure
+   profile-service:
+      build: ./profile-service
+      container_name: fintech-profile
+      ports:
+        - "8082:8082"
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      depends_on:
+        mysql:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_healthy
+        eureka-server:
+          condition: service_healthy
+        auth-service:
+          condition: service_started
+      networks:
+        - fintech-network
+      restart: on-failure
 
-  db_landing:
-    image: mysql
-    container_name: 'db_landing'
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: fintech_landing
-      MYSQL_USER: fintech_landing
-      MYSQL_PASSWORD: password
-    ports:
-      - "3307:3306"
-    networks:
-      - local
-  adminer_landing:
-    image: adminer
-    container_name: 'adminer_landing'
-    restart: always
-    depends_on:
-      - db_landing
-    ports:
-      - 1235:8080
-    networks:
-      - local
-
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: 'rabbitmq'
-    ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-    networks:
-      - local
-
-#Docker Networks
+   lending-engine:
+      build: ./lending-engine
+      container_name: fintech-lending
+      ports:
+        - "8083:8083"
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      depends_on:
+        mysql:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_healthy
+        eureka-server:
+          condition: service_healthy
+        auth-service:
+          condition: service_started
+      networks:
+        - fintech-network
+      restart: on-failure
 networks:
-  local:
-    driver: bridge
+   fintech-network:
+      driver: bridge
+
+volumes:
+   mysql_data:
+   rabbitmq_data:

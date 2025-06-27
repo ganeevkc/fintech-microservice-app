@@ -19,11 +19,11 @@
     </properties>
 
     <modules>
-        <module>lendingEngine</module>
-        <module>profile</module>
-        <module>authenticationService</module>
-        <module>eurekaServer</module>
-        <module>apiGateway</module>
+        <module>lending-engine</module>
+        <module>profile-service</module>
+        <module>authentication-service</module>
+        <module>eureka-server</module>
+        <module>api-gateway</module>
     </modules>
 
     <dependencies>
