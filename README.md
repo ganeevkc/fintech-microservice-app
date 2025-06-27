@@ -41,7 +41,6 @@ This platform implements a microservices architecture with service discovery, AP
 ### Microservices Patterns
 - **Service Discovery** - Eureka-based service registration
 - **API Gateway** - Centralized routing with Spring Cloud Gateway
-- **Circuit Breaker** - Resilience with Hystrix
 - **Event-Driven Architecture** - RabbitMQ messaging
 - **Database per Service** - Independent data stores
 
@@ -148,8 +147,8 @@ This platform implements a microservices architecture with service discovery, AP
 POST /auth/register
 {
   "username": "john_doe",
-  "email": "john@example.com",
-  "password": "securePassword"
+  "password": "securePassword",
+  "role": "john_doe_role"
 }
 
 # Login
@@ -168,10 +167,13 @@ GET /auth/validate?token=<jwt_token>
 # Create profile
 POST /api/profiles
 {
-  "userId": 1,
-  "firstName": "John",
-  "lastName": "Doe",
-  "phoneNumber": "+1234567890"
+  "userId": "john_doe_userId",
+  "username": "john_doe"
+  "firstname": "John",
+  "lastname": "Doe",
+  "age": "25",
+  "occupation": "businessman",
+  "role": "john_doe_role"
 }
 
 # Get profile
@@ -189,10 +191,11 @@ DELETE /api/profiles/{userId}
 # Apply for loan
 POST /api/loans/apply
 {
-  "userId": 1,
+  "userId": "john_doe_userId",
   "amount": 50000,
   "purpose": "home_improvement",
-  "term": 36
+  "daysToRepay": 31,
+  "interestRate": 6.2
 }
 
 # Check loan status
@@ -274,7 +277,6 @@ spring:
 
 ### Container Orchestration
 - Docker Compose for local development
-- Kubernetes-ready configurations
 - Environment-specific configurations
 
 ## 📊 Monitoring & Observability
@@ -311,9 +313,9 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## 🤝 Contact
 
-**[Your Name]** - [your.email@example.com]
+**Ganeev** - ganeevkc23@gmail.com
 
-Project Link: [https://github.com/yourusername/fintech-spring-microservice](https://github.com/yourusername/fintech-spring-microservice)
+Project Link: [https://github.com/ganeevkc/fintech-spring-microservice](https://github.com/yourusername/fintech-spring-microservice)
 
 ---
 
