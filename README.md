@@ -315,7 +315,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 **Ganeev** - ganeevkc23@gmail.com
 
-Project Link: [https://github.com/ganeevkc/fintech-spring-microservice](https://github.com/yourusername/fintech-spring-microservice)
+Project Link: https://github.com/ganeevkc/fintech-microservice-app
 
 ---
 
