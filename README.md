@@ -315,7 +315,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 **Ganeev** - ganeevkc23@gmail.com
 
-Project Link: https://github.com/ganeevkc/fintech-microservice-app
+**Project Link**: https://github.com/ganeevkc/fintech-microservice-app
 
 ---
 
