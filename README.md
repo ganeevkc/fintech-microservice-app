@@ -307,11 +307,7 @@ spring:
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
-## 🤝 Contact
+## Contact
 
 **Ganeev** - ganeevkc23@gmail.com
 
